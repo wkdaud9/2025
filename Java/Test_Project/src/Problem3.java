@@ -9,7 +9,7 @@ class Problem3{
 		int n;
 		System.out.println("입력한 수에 맞게 *로 마름모를 그리는 프로그램입니다.");
 		System.out.println("정수입력(1~19사이의 홀수) : ");
-		n = im.inputOneNumber();
+		n = im.getNumber();
 		if(im.checkNum(n)) { 
 			for(int i=0; i<n/2 +1; i++) {
 				for(int j=i; j<n/2; j++) {

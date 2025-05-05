@@ -1,9 +1,10 @@
 import java.util.Scanner;
 
-class InputManager {
-	
-	private Scanner sc = new Scanner(System.in);
-	
+class InputManager {	
+	private Scanner sc;
+	public InputManager(Scanner sc) {
+		this.sc = sc;
+	}
 	public int getNumber() {return sc.nextInt();}
 	
 	public int getYear() {
@@ -18,19 +19,20 @@ class InputManager {
 	}
 	
 	public int getMonth() {
-		int mtf;
+		int cnt = 0;
 		int month;
 		
-		System.out.println("월을 입력: ");
-		month = sc.nextInt();
-		
-		if(month >= 1 && month <=12) mtf = 0;
-		else mtf = 1;
-		while(mtf == 1) {
-			System.out.println("월 입력 오류, 다시 입력: ");
+		do {
+			if(cnt == 0) {
+				System.out.println("월을 입력: ");
+				cnt++;
+			}
+			else {
+				System.out.println("월 입력 오류, 다시 입력: ");
+			}
 			month = sc.nextInt();
-			if(month >= 1 && month <=12) mtf = 0;
-		}
+		} while (month < 1 || month > 12);
+		
 		return month;
 	}
 	
@@ -57,10 +59,6 @@ class InputManager {
 		else return false;
 	}
 	
-	public int inputOneNumber() {
-		return sc.nextInt();
-	}
-	
 	public int LottoWhatinput() {
 		int n = sc.nextInt();
 		
@@ -76,12 +74,14 @@ class InputManager {
 		return n;
 	}
 	
-	public int LottoNumberInput() {
-		int num = sc.nextInt();
-		if(num > 0 && num <= 45) return num;
-		else return 0;
-	}
-	
-	
+	public int LottoNumberInput(int idx) {
+		int num;
+		num = sc.nextInt();
+		while(num <= 0 || num > 45) {
+			System.out.println("입력 범위를 벗어났습니다. 다시 " + (idx+1) +"번째 번호를 입력하세요(1~45) : ");
+			num = sc.nextInt();
+		}
+		return num;
+	}	
 	
 }

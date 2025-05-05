@@ -19,32 +19,24 @@ class Problem4{
 	
 	private void insertNumber() {
 		int index = 0;
-		int inputNum;
-		int printIndex = 1;
+		int num;
 
-		if(l.getNumber()==0) l.insertRandomNumber(0, 6); // 매개변수 1부터 매개변수 2 까지 랜덤 값으로 채우는 함수(자동에도 중복 제거)
-		else if(l.getNumber()<= 6) {
-			for(int i=0; i<l.getNumber(); i++) {
-				printIndex = i+1;
-				System.out.println(printIndex + "번째 번호를 입력하세요(1~45) : ");
-				inputNum = im.LottoNumberInput();	// 범위에 속하는 숫자일 경우 return num, 범위 밖이면 return 0
-				while(inputNum == 0) {
-						System.out.println("입력 범위를 벗어났습니다. 다시 " + printIndex +"번째 번호를 입력하세요(1~45) : ");
-						inputNum = im.LottoNumberInput();
-					}
-				while(l.duplication(inputNum, index) || inputNum == 0) {
-					if(l.duplication(inputNum, index)) {
-						System.out.println(inputNum +"은 중복된 번호입니다. 다시 " + printIndex +"번째 번호를 입력하세요(1~45) : ");
-					}
-					else if(inputNum == 0) {
-						System.out.println("입력 범위를 벗어났습니다. 다시 " + printIndex +"번째 번호를 입력하세요(1~45) : ");
-					}
-					inputNum = im.LottoNumberInput();
+		if(l.getNumber()==0) {
+			l.insertRandomNumber(0, 6); // 매개변수 1부터 매개변수 2 까지 랜덤 값으로 채우는 함수(자동에도 중복 제거)
+			return;
+		}
+		
+		 while(index < l.getNumber()) {
+				System.out.println((index + 1) + "번째 번호를 입력하세요(1~45) : ");
+				num = im.LottoNumberInput(index);
+				while(l.duplication(num, index)) {
+					System.out.println(num +"은 중복된 번호입니다. 다시 " + (index + 1) +"번째 번호를 입력하세요(1~45) : ");
+					num = im.LottoNumberInput(index);
 				}
-				l.setLottoNum(inputNum, index++);
-			}
-			l.insertRandomNumber(index, 6);
-		} 
+				l.setLottoNum(num, index);
+				index++;
+		 }
+		 l.insertRandomNumber(index, 6);
 	}
 	
 	private void printLotto() {
