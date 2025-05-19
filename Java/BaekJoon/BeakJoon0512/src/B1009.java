@@ -21,6 +21,7 @@ public class B1009 {
 		int temp;
 		int p;
 		Ab nm;
+		
 		Scanner sc = new Scanner(System.in);
 		t = sc.nextInt();
 		for(int i=0; i<t; i++) {
@@ -29,9 +30,11 @@ public class B1009 {
 			if(a > 0 && b > 0) {
 				nm = new Ab(a);
 				temp = b % nm.f;
+				
 				if(nm.f == 1 && temp == 0) temp = 1;
 				else if(nm.f == 4 && temp == 0) temp = 4;
 				else if(nm.f == 2 && temp == 0) temp = 2;
+				
 				p = (int)Math.pow(a, temp) % 10;
 				if(p == 0) System.out.println(10);
 				else System.out.println(p);

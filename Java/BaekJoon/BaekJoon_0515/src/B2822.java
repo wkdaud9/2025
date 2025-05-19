@@ -9,7 +9,7 @@ public class B2822 {
 		int cnt[] = new int[5]; // 인덱스 번호 저
 		int idx = 0;
 		Scanner sc = new Scanner(System.in);
-		
+		 
 		for(int i=0; i<8; i++) {
 			arr[i] = sc.nextInt();
 		}
