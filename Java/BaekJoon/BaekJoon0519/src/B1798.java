@@ -1,5 +1,5 @@
 import java.util.Scanner;
-public class Main {
+public class B1798 {
 
 	public static void main(String[] args) {
 		long n;
