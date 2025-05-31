@@ -4,12 +4,11 @@
 #include <iomanip>
 #include "conio.h"
 
-
 using namespace std;
 
-class Binary {
+class Binary {  // 0~15 Binary 저장 클래스
 protected:
-    vector<vector<int>> binaryArr;
+    vector<vector<int>> binaryArr; // 인덱스 0~15까지 사이즈 4 int형 vector로 Binary 저장
 public:
     Binary();
     vector<int> TenToBinary(int n);
@@ -20,7 +19,7 @@ Binary::Binary() {
         binaryArr.push_back(TenToBinary(i));
 }
 
-vector<int> Binary::TenToBinary(int n) {
+vector<int> Binary::TenToBinary(int n) {    // 0 ~ 15, Binary 찾는 함수
     vector<int> b(4);
     for (int i = 3; i >= 0; i--) {
         b[i] = n % 2;
@@ -29,51 +28,53 @@ vector<int> Binary::TenToBinary(int n) {
     return b;
 }
 
-class Implicants {
+class Implicants {  // merge 작업 후 key, binary 저장위한 클래스(key가 여러개일 상황 대비, vector로 선언)
 public:
     vector<int> key, binary;
     Implicants(vector<int> k, vector<int> b) : key(k), binary(b) {}
 };
 
-class QM : public Binary {
+class QM : public Binary {  // 퀸 맥클러스키 전반적인 코드 진행 클래스
 private:
-    int inputArr[16];
-    int mgIdx = 0;
-    vector<int> epiTop; // EPI 도표에서 윗부분
-    vector<vector<int>> piTable, epi, hiddenEpi; // EPI 도표
+    int inputArr[16];   // 처음에 받은 0과 1 값 저장 변수
+    int mgIdx = 0;      // mergeGroup 상태 체크 변수
+    vector<int> epiTop; // 도표 윗부분
+    vector<vector<int>> piTable, epi, hiddenEpi; // EPI 도표(X만 표시, O로 표시, erase 작업 후)
     vector<vector<Implicants>> groupOne;   // 분류된 숫자들(1의 갯수로)
-    vector<vector<Implicants>> mergeGroup;    // 0: 하나만 다른것끼리 그룹핑 , 1: PI, 2: hidden PI, 3: PI 총합, 4: EPI
+    vector<vector<Implicants>> mergeGroup;    // [0]: 하나만 다른면 그룹핑 , [1]: Prime Implicants, [2]: hidden PI, [3]: PI 총합, [4]: EPI
 
 public:
-    QM() {};
-    void Manage();
-    void Screen(int n);
+    QM() {};    // 상속받은 Binary 생성자 호출위한 기본 생성자
+    void Manage();  // 코드 전체적인 진행 관리
     void InitVector();
     void InputOneZero();
-    void CheckInput(int i);
-    void GroupOnePrint();
-    void KeyComp(vector<int> n1, vector<int> n2);
-    void BinaryComp(Implicants n1, Implicants n2);
+    void CheckInput(int i); // input 들어온 값들 1의 개수 체크 및 그룹핑
     void TwoMerge();
-    void SelfMerge(int n);
+    void KeyComp(vector<int> n1, vector<int> n2);   // TwoMerge에서 받은 그룹 비교 및 merge 담당
+    void SelfMerge(int n);  // 입력 값이 1개 or 2개 일 때 처리 위한 함수
     void ThreeMerge();
+    void BinaryComp(Implicants n1, Implicants n2);  // ThreeMerge에서 받은 그룹 비교 및 merge 담당
     void RemoveDup();
-    void ThreePrintArr(int n);
     void FindHidden();
     void MergePi();
     void InitPITable();
     void SetPITable();
-    void ShowPITable();
     void InitEPITable();
-    void ShowEPITable();
     void AddEPI();
-    void HiddenEPI();
-    void DeletePI(int j);
-    void ShowDeleteEPI();
-    void LastPrint();
+    void DeletePI();
+    void DeleteCol(int j);
+    void AddHiddenEPI();
+
+    void Screen(int n); // 출력관리 함수
+    void GroupOnePrint();   // 1의 개수 그룹 프린트 함수
+    void ThreePrintArr(int n);  // mergeGroup[0], mergeGroup[1] 출력
+    void ShowPITable();     // PITable 출력(X만 있는 테이블)
+    void ShowEPITable();    // EPITable 출력(O표시 된 테이블)
+    void ShowDeleteEPI();   // DeleteEPI 출력(EPI 빼고 삭제 된 테이블)
+    void LastPrint();       // 마지막 수식 출력
     ~QM() {};
 };
-// EPI 0개일때 수정
+
 void QM::Manage() {
     int screenNum = 0;
     vector<vector<Implicants>>::iterator it;
@@ -110,10 +111,9 @@ void QM::Manage() {
     SetPITable();  // piTable에 -1로 x 표시, 나머지는 0
     InitEPITable(); // 열에 혼자 있는 애들 체크해서 -2로 O표시
     AddEPI(); // O표시 되어있는 epi mergeGroup[4]에 저장
-    HiddenEPI(); // 수평선 -1 찾아서 해당 열 -3으로 만들기(erase 작업), hiddenEPI는 mergeGroup[4]에 저장
-
-    Screen(screenNum);
-
+    DeletePI(); // 수평선 -1 찾아서 해당 열 -3으로 만들기(erase 작업),
+    AddHiddenEPI(); // hiddenEPI, mergeGroup[4]에 저장
+    Screen(screenNum);    // 출력 함수 호출
 }
 
 void QM::Screen(int n) {
@@ -158,7 +158,6 @@ void QM::Screen(int n) {
         key = _getch();
     }
 }
-
 
 void QM::InitVector() {
     for (int i = 0; i < 5; i++) {
@@ -307,7 +306,6 @@ void QM::FindHidden() {
                 binary.push_back(b);
             }
             Implicants im(key, binary);
-            cout << mergeGroup[0].size() << endl;
             mergeGroup[mgIdx].push_back(im);
         }
     }
@@ -339,7 +337,8 @@ void QM::MergePi() {
 void QM::GroupOnePrint() {
     int printCnt = 0, idx = 0;
 
-    cout << "        ABCD" << endl;
+    cout << right;
+    cout << setw(12) << "ABCD" << endl;
     for (vector<Implicants>& i : groupOne) {
         printCnt = 0;
         if (!i.empty()) cout << idx;
@@ -362,7 +361,7 @@ void QM::GroupOnePrint() {
 
 void QM::ThreePrintArr(int n) {
     int countPrint = 0, back;
-    string space = "";
+    string space;
 
     for (Implicants i : mergeGroup[n]) {
         space = "";
@@ -389,7 +388,6 @@ void QM::ThreePrintArr(int n) {
         }
         cout << endl;
     }
-    cout << endl;
 }
 
 void QM::InitPITable() {
@@ -400,9 +398,8 @@ void QM::InitPITable() {
     }
 
     sort(epiTop.begin(), epiTop.end());
-    piTable.resize(mergeGroup[3].size(), vector<int>(epiTop.size()));
+    piTable.assign(mergeGroup[3].size(), vector<int>(epiTop.size()));
 }
-
 
 void QM::SetPITable() {
     int xdx = 0;
@@ -425,6 +422,7 @@ void QM::ShowPITable() {
     string space = "";
     string under = "┌";
 
+    cout << left;
     cout << setw(18) << " ";
     for (int i : epiTop) {
         cout << setw(3) << i;
@@ -460,7 +458,6 @@ void QM::ShowPITable() {
         cout << endl;
         idx++;
     }
-    cout << endl;
 }
 
 void QM::InitEPITable() {
@@ -485,7 +482,7 @@ void QM::InitEPITable() {
 
 void QM::ShowEPITable() {
     int print = 0, idx = 0, back;
-    string space = "";
+    string space;
     string under = "┌";
 
     cout << setw(18) << " ";
@@ -518,6 +515,7 @@ void QM::ShowEPITable() {
         cout << "│ ";
         for (int i : epi[idx]) {
             if (i == -1) cout << setw(3) << "X";
+
             else if (i == -2) cout << setw(3) << "O";
             else cout << setw(3) << "  ";
         }
@@ -529,7 +527,7 @@ void QM::ShowEPITable() {
 
 void QM::ShowDeleteEPI() {
     int print = 0, idx = 0, back;
-    string space = "";
+    string space;
     string under = "┌";
 
     cout << setw(18) << " ";
@@ -590,26 +588,27 @@ void QM::AddEPI() {
     }
 }
 
-void QM::HiddenEPI() {
+void QM::DeletePI() {
     mgIdx = 4;
-    int cnt = 0;
-    vector<int> key, binary;
-    vector<Implicants>::iterator it = mergeGroup[3].begin();
 
     hiddenEpi.assign(epi.size(), vector<int>(epi.size()));
     copy(epi.begin(), epi.end(), hiddenEpi.begin());
 
-    mergeGroup.push_back(vector<Implicants>());
-
     for (int i = 0; i < epi.size(); i++) {
         if (find(hiddenEpi[i].begin(), hiddenEpi[i].end(), -2) != hiddenEpi[i].end()) {
             for (int j = 0; j < epiTop.size(); j++) {
-                if (hiddenEpi[i][j] == -1) {
-                    DeletePI(j);
-                }
+                if (hiddenEpi[i][j] == -1) DeleteCol(j);
             }
         }
     }
+}
+
+void QM::AddHiddenEPI() {
+    int cnt;
+    vector<int> key, binary;
+    vector<Implicants>::iterator it = mergeGroup[3].begin();
+
+    mergeGroup.push_back(vector<Implicants>());
 
     for (int i = 0; i < epi.size(); i++) {
         cnt = 0;
@@ -626,7 +625,7 @@ void QM::HiddenEPI() {
     }
 }
 
-void QM::DeletePI(int j) {
+void QM::DeleteCol(int j) {      // j행, 열에 있는 값들 삭제
     for (int i = 0; i < epi.size(); i++)
         if (hiddenEpi[i][j] == -1) hiddenEpi[i][j] = -3;
 }
@@ -662,7 +661,6 @@ void QM::LastPrint() {
         }
     }
     cout << f << endl;
-    cout << endl;
 }
 
 int main() {
